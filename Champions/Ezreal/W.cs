@@ -26,7 +26,27 @@ namespace Spells
             spell.AddProjectile("EzrealEssenceFluxMissile", trueCoords.X, trueCoords.Y);
         }
         public void ApplyEffects(Champion owner, Unit target, Spell spell, Projectile projectile) {
+            var ap = owner.GetStats().AbilityPower.Total * 0.8f;
+            var damage = 25 + spell.Level * 45 + ap;
+            if (projectile.IsCollidingWith(owner))
+            {
 
+            }
+            else if (target.Team == owner.Team && target is Champion)
+            {
+                ChampionStatModifier mod = new ChampionStatModifier();
+                mod.AttackSpeed.PercentBonus = 0.15f + spell.Level * 0.05f;
+                target.AddStatModifier(mod);
+                ApiFunctionManager.AddBuffHUDVisual("EzrealEssenceFlux", 5.0f, 1, target, 5.0f);
+                ApiFunctionManager.CreateTimer(5.0f, () =>
+                {
+                    target.RemoveStatModifier(mod);
+                });
+            }
+            else
+            {
+                owner.DealDamageTo(target, damage, DamageType.DAMAGE_TYPE_PHYSICAL, DamageSource.DAMAGE_SOURCE_ATTACK, false);
+            }
         }
         public void OnUpdate(double diff) {
 
